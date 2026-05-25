@@ -632,8 +632,10 @@ function renderRow(item) {
 }
 
 function renderAll() {
-  const activeItems = items.filter(i => !i.completed);
-  const completedItems = items.filter(i => i.completed);
+  // 过滤空名称的无效行
+  const validItems = items.filter(i => i.name && i.name.trim());
+  const activeItems = validItems.filter(i => !i.completed);
+  const completedItems = validItems.filter(i => i.completed);
 
   // Sort active by deadline ascending
   activeItems.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
