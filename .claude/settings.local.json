@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Start-Process *)",
+      "PowerShell(Start-Process \"C:\\\\Users\\\\HUAWEI\\\\新建文件夹 \\(2\\)\\\\deadline-reminder.html\")",
+      "PowerShell(npm *)",
+      "PowerShell(vercel *)",
+      "PowerShell(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "PowerShell(git config *)",
+      "PowerShell(git remote *)",
+      "PowerShell(git branch *)",
+      "PowerShell(git push *)",
+      "PowerShell(gh auth *)"
+    ]
+  }
+}

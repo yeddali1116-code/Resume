@@ -1,0 +1,22 @@
+name: DDL Notify
+
+on:
+  schedule:
+    # 每天北京时间 9:00 (UTC+8 = 01:00 UTC)
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run notify script
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          SENDKEY: ${{ secrets.SENDKEY }}
+        run: node scripts/notify.js

@@ -461,11 +461,11 @@ tbody tr:hover { background: #fafbfe; }
   <!-- 微信推送设置 -->
   <div class="card">
     <h2>微信推送</h2>
-    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-      <span style="font-size:13px;color:#8899aa;">使用 Server酱 发送微信提醒，每天自动检测即将到期的任务</span>
-      <button class="btn btn-success btn-sm" id="btnTestNotify" onclick="sendTestNotification()">发送测试通知</button>
+    <div style="font-size:13px;color:#8899aa;line-height:1.8;">
+      每天自动通过 Server酱 发送微信提醒（由 GitHub Actions 定时执行）<br>
+      检测规则：距离 deadline 还有 1天、3天、5天 时自动推送
     </div>
-    <div id="notifyStatus" style="font-size:12px;color:#8899aa;margin-top:10px;"></div>
+    <div id="notifyStatus" style="font-size:12px;color:#10b981;margin-top:8px;"></div>
   </div>
 
   <!-- AI 智能解析 -->
@@ -562,22 +562,23 @@ tbody tr:hover { background: #fafbfe; }
 <div class="toast" id="toast"></div>
 
 <script>
-const STORAGE_KEY = 'deadline_items';
+const API_BASE = '/api/items';
 const API_KEY_STORAGE = 'deepseek_api_key';
 
 let items = [];
 let editingId = null;
 
 // --- Data ---
-function loadItems() {
+async function loadItems() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    items = raw ? JSON.parse(raw) : [];
-  } catch { items = []; }
-}
-
-function saveItems() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    const resp = await fetch(API_BASE);
+    if (!resp.ok) throw new Error('API error: ' + resp.status);
+    items = await resp.json();
+  } catch (e) {
+    console.error('加载失败:', e);
+    showToast('加载数据失败');
+    items = [];
+  }
 }
 
 // --- Render ---
@@ -595,7 +596,7 @@ function getDeadlineBadge(days) {
   return '<span class="badge badge-normal">还有 ' + days + ' 天</span>';
 }
 
-function renderRow(item, showComplete) {
+function renderRow(item) {
   const days = getDaysUntil(item.deadline);
   const badge = item.completed ? '' : getDeadlineBadge(days);
   const address = item.address ? '<div class="item-address">' + escapeHtml(item.address) + '</div>' : '';
@@ -658,7 +659,7 @@ function renderAll() {
 }
 
 // --- Actions ---
-function addItem() {
+async function addItem() {
   const name = document.getElementById('inputName').value.trim();
   const date = document.getElementById('inputDate').value;
   const address = document.getElementById('inputAddress').value.trim();
@@ -667,46 +668,85 @@ function addItem() {
   if (!date) { showToast('请选择 deadline 日期'); return; }
 
   if (editingId) {
-    const item = items.find(i => i.id === editingId);
-    if (item) {
-      item.name = name;
-      item.deadline = date;
-      item.address = address;
+    try {
+      const resp = await fetch(API_BASE + '?id=' + encodeURIComponent(editingId), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, deadline: date, address })
+      });
+      if (!resp.ok) throw new Error('更新失败');
+      await loadItems();
+      renderAll();
+      showToast('事项已更新');
+    } catch (e) {
+      showToast('更新失败: ' + e.message);
+      return;
     }
-    showToast('事项已更新');
   } else {
-    items.push({
-      id: generateId(),
-      name,
-      deadline: date,
-      address,
-      completed: false,
-      createdAt: new Date().toISOString()
-    });
-    showToast('事项已添加');
+    try {
+      const resp = await fetch(API_BASE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, deadline: date, address })
+      });
+      if (!resp.ok) throw new Error('添加失败');
+      await loadItems();
+      renderAll();
+      showToast('事项已添加');
+    } catch (e) {
+      showToast('添加失败: ' + e.message);
+      return;
+    }
   }
 
   clearForm();
-  saveItems();
-  renderAll();
 }
 
-function completeItem(id) {
-  const item = items.find(i => i.id === id);
-  if (item) { item.completed = true; saveItems(); renderAll(); showToast('已标记为完成'); }
+async function completeItem(id) {
+  try {
+    const resp = await fetch(API_BASE + '?id=' + encodeURIComponent(id), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ completed: true })
+    });
+    if (!resp.ok) throw new Error('操作失败');
+    const item = items.find(i => i.id === id);
+    if (item) item.completed = true;
+    renderAll();
+    showToast('已标记为完成');
+  } catch (e) {
+    showToast('操作失败: ' + e.message);
+  }
 }
 
-function uncompleteItem(id) {
-  const item = items.find(i => i.id === id);
-  if (item) { item.completed = false; saveItems(); renderAll(); showToast('已恢复'); }
+async function uncompleteItem(id) {
+  try {
+    const resp = await fetch(API_BASE + '?id=' + encodeURIComponent(id), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ completed: false })
+    });
+    if (!resp.ok) throw new Error('操作失败');
+    const item = items.find(i => i.id === id);
+    if (item) item.completed = false;
+    renderAll();
+    showToast('已恢复');
+  } catch (e) {
+    showToast('操作失败: ' + e.message);
+  }
 }
 
-function deleteItem(id) {
+async function deleteItem(id) {
   if (!confirm('确定要删除这个事项吗？')) return;
-  items = items.filter(i => i.id !== id);
-  saveItems();
-  renderAll();
-  showToast('事项已删除');
+  try {
+    const resp = await fetch(API_BASE + '?id=' + encodeURIComponent(id), { method: 'DELETE' });
+    if (!resp.ok) throw new Error('删除失败');
+    items = items.filter(i => i.id !== id);
+    renderAll();
+    showToast('事项已删除');
+  } catch (e) {
+    showToast('删除失败: ' + e.message);
+  }
 }
 
 function editItem(id) {
@@ -792,25 +832,29 @@ async function aiParse() {
       return;
     }
 
-    // Fill form with first result and add all
-    parsed.forEach((task, i) => {
+    // 首个填入表单，其余直接通过 API 添加
+    for (let i = 0; i < parsed.length; i++) {
+      const task = parsed[i];
       if (i === 0) {
         document.getElementById('inputName').value = task.name || '';
         document.getElementById('inputDate').value = task.deadline || '';
         document.getElementById('inputAddress').value = task.address || '';
       } else {
-        items.push({
-          id: generateId(),
-          name: task.name || '未命名任务',
-          deadline: task.deadline || new Date().toISOString().slice(0, 10),
-          address: task.address || '',
-          completed: false,
-          createdAt: new Date().toISOString()
-        });
+        try {
+          await fetch(API_BASE, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: task.name || '未命名任务',
+              deadline: task.deadline || new Date().toISOString().slice(0, 10),
+              address: task.address || ''
+            })
+          });
+        } catch (e) { console.error('添加失败:', e); }
       }
-    });
+    }
 
-    saveItems();
+    await loadItems();
     renderAll();
     statusEl.textContent = '成功解析 ' + parsed.length + ' 个任务';
     btn.disabled = false;
@@ -844,111 +888,7 @@ function clearApiKey() {
   closeApiKeyModal();
 }
 
-// --- Server酱 ---
-const SENDKEY = 'SCT354575TbA9Vr0VH7kBSo7q0iAiuJTRP';
-const NOTIFY_LOG_KEY = 'serverchan_notify_log';
-
-function getNotifyLog() {
-  try {
-    const raw = localStorage.getItem(NOTIFY_LOG_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch { return {}; }
-}
-
-function saveNotifyLog(log) {
-  localStorage.setItem(NOTIFY_LOG_KEY, JSON.stringify(log));
-}
-
-async function sendWxMessage(title, desp) {
-  const url = 'https://sctapi.ftqq.com/' + SENDKEY + '.send';
-  const body = new URLSearchParams();
-  body.append('title', title);
-  body.append('desp', desp);
-
-  console.log('[Server酱] 请求地址:', url);
-  console.log('[Server酱] 请求体:', body.toString());
-
-  const resp = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: body.toString()
-  });
-
-  const respText = await resp.text();
-  console.log('[Server酱] 响应状态:', resp.status);
-  console.log('[Server酱] 响应内容:', respText);
-
-  if (!resp.ok) {
-    throw new Error('Server酱请求失败: ' + resp.status + ' ' + respText);
-  }
-  return JSON.parse(respText);
-}
-
-async function sendTestNotification() {
-  const btn = document.getElementById('btnTestNotify');
-  const statusEl = document.getElementById('notifyStatus');
-  btn.disabled = true;
-  statusEl.textContent = '发送中...';
-  try {
-    await sendWxMessage('✅ 测试消息', 'Deadline 提醒工具微信推送已就绪！');
-    statusEl.textContent = '测试通知已发送，请检查微信';
-    showToast('测试通知已发送');
-  } catch (e) {
-    statusEl.textContent = '发送失败: ' + e.message;
-    showToast('发送失败');
-    console.error(e);
-  }
-  btn.disabled = false;
-}
-
-function checkAndNotify() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayStr = today.toISOString().slice(0, 10);
-
-  const log = getNotifyLog();
-  if (log.lastDate === todayStr) {
-    document.getElementById('notifyStatus').textContent = '今日已推送过提醒（' + todayStr + '）';
-    return;
-  }
-
-  const activeItems = items.filter(i => !i.completed);
-  const notifyItems = activeItems.filter(i => {
-    const days = getDaysUntil(i.deadline);
-    return days === 1 || days === 3 || days === 5;
-  });
-
-  if (notifyItems.length === 0) {
-    log.lastDate = todayStr;
-    saveNotifyLog(log);
-    document.getElementById('notifyStatus').textContent = '今日无即将到期的任务（' + todayStr + '）';
-    return;
-  }
-
-  const title = '⚠️ DDL提醒：' + notifyItems.length + '个任务即将截止';
-  const lines = notifyItems.map(i => {
-    const days = getDaysUntil(i.deadline);
-    const addr = i.address ? '，地址：' + i.address : '';
-    return '【' + i.name + '】还有' + days + '天截止' + addr;
-  });
-  const desp = lines.join('\n\n');
-
-  sendWxMessage(title, desp).then(() => {
-    log.lastDate = todayStr;
-    saveNotifyLog(log);
-    document.getElementById('notifyStatus').textContent = '已推送 ' + notifyItems.length + ' 条提醒（' + todayStr + '）';
-    showToast('已发送 ' + notifyItems.length + ' 条微信提醒');
-  }).catch(e => {
-    console.error(e);
-    document.getElementById('notifyStatus').textContent = '推送失败: ' + e.message;
-  });
-}
-
 // --- Helpers ---
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-}
-
 function formatDate(dateStr) {
   if (!dateStr) return '-';
   const parts = dateStr.split('-');
@@ -970,9 +910,11 @@ function showToast(msg) {
 }
 
 // --- Init ---
-loadItems();
-renderAll();
-checkAndNotify();
+(async function init() {
+  await loadItems();
+  renderAll();
+  document.getElementById('notifyStatus').textContent = '自动推送已启用（每天 9:00 检测）';
+})();
 </script>
 
 </body>
