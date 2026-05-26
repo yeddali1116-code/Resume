@@ -3,1008 +3,724 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Deadline 提醒工具</title>
+<title>李韵都 · 个人简历</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-  background: linear-gradient(135deg, #e8edf5 0%, #f0f4fa 30%, #faf5f0 70%, #f5efe8 100%);
-  background-attachment: fixed;
-  color: #2d3748;
-  min-height: 100vh;
-}
+  :root {
+    --bg:       #F8F5F0;
+    --card:     #FFFFFF;
+    --text:     #1C1C1E;
+    --muted:    #6B6560;
+    --accent:   #C4694B;
+    --accent2:  #2C4A3E;
+    --border:   #E5DFD7;
+    --shadow:   0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
+    --shadow-h: 0 1px 3px rgba(0,0,0,0.06), 0 8px 28px rgba(0,0,0,0.08);
+    --radius:   6px;
+    --max-w:    700px;
+    --serif:    'Georgia', 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', serif;
+  }
 
-.container {
-  max-width: 920px;
-  margin: 0 auto;
-  padding: 32px 20px;
-}
+  html { scroll-behavior: smooth; }
 
-/* Header */
-header {
-  text-align: center;
-  margin-bottom: 36px;
-}
-header h1 {
-  font-size: 32px;
-  font-weight: 800;
-  background: linear-gradient(135deg, #4a6cf7 0%, #7c5cfc 50%, #e056a0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 6px;
-  letter-spacing: -0.5px;
-}
-header .subtitle {
-  font-size: 14px;
-  color: #8899aa;
-  font-weight: 400;
-  letter-spacing: 1px;
-}
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
 
-/* Cards */
-.card {
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 28px;
-  margin-bottom: 22px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.03);
-  border: 1px solid rgba(255,255,255,0.6);
-  transition: box-shadow 0.3s, transform 0.2s;
-}
-.card:hover {
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 6px 20px rgba(0,0,0,0.06), 0 12px 40px rgba(0,0,0,0.04);
-}
-.card h2 {
-  font-size: 17px;
-  margin-bottom: 18px;
-  color: #2d3748;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  padding-bottom: 12px;
-  border-bottom: 2px solid #f0f2f7;
-}
+  /* ── Section titles ── */
+  .sec-title {
+    font-family: var(--serif);
+    font-size: clamp(1.6rem, 3.5vw, 2rem);
+    font-weight: 400;
+    color: var(--text);
+    text-align: center;
+    margin-bottom: 1.8rem;
+    letter-spacing: 0.04em;
+  }
 
-/* Form */
-.form-row {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-  align-items: flex-end;
-}
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  flex: 1;
-  min-width: 160px;
-}
-.form-group label {
-  font-size: 12px;
-  color: #8899aa;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.form-group input {
-  padding: 11px 14px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 14px;
-  transition: all 0.2s;
-  font-family: inherit;
-  background: #fafbfc;
-  color: #2d3748;
-}
-.form-group input:focus {
-  outline: none;
-  border-color: #7c5cfc;
-  box-shadow: 0 0 0 3px rgba(124,92,252,0.08);
-  background: #fff;
-}
-.btn {
-  padding: 11px 22px;
-  border: none;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: inherit;
-  white-space: nowrap;
-  letter-spacing: 0.3px;
-}
-.btn-primary {
-  background: linear-gradient(135deg, #4a6cf7 0%, #5b7bf9 100%);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(74,108,247,0.25);
-}
-.btn-primary:hover { background: linear-gradient(135deg, #3b5de7 0%, #4a6cf7 100%); box-shadow: 0 4px 14px rgba(74,108,247,0.35); transform: translateY(-1px); }
-.btn-success {
-  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(16,185,129,0.2);
-}
-.btn-success:hover { box-shadow: 0 4px 14px rgba(16,185,129,0.3); transform: translateY(-1px); }
-.btn-danger {
-  background: #fff;
-  color: #ef4444;
-  border: 1.5px solid #fecaca;
-  padding: 7px 14px;
-  font-size: 13px;
-  border-radius: 8px;
-}
-.btn-danger:hover { background: #fef2f2; border-color: #fca5a5; }
-.btn-sm {
-  padding: 7px 14px;
-  font-size: 13px;
-  border-radius: 8px;
-}
-.btn-outline {
-  background: #fff;
-  color: #4a6cf7;
-  border: 1.5px solid #dce4fa;
-}
-.btn-outline:hover { background: #f5f7ff; border-color: #4a6cf7; }
+  section {
+    padding: 1.9rem 1.5rem;
+    max-width: var(--max-w);
+    margin: 0 auto;
+  }
 
-/* Checkbox button */
-.checkbox-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid #d1d5db;
-  background: #fff;
-  cursor: pointer;
-  transition: all 0.2s;
-  flex-shrink: 0;
-  font-size: 14px;
-  color: transparent;
-}
-.checkbox-btn:hover {
-  border-color: #10b981;
-  background: #f0fdf4;
-}
-.checkbox-btn.done {
-  background: #10b981;
-  border-color: #10b981;
-  color: #fff;
-}
+  .hero + section { padding-top: 1.2rem; }
 
-/* AI Section */
-.ai-section {
-  border: 1.5px dashed #dce4fa;
-  background: rgba(250,251,255,0.7);
-}
-.ai-section textarea {
-  width: 100%;
-  height: 100px;
-  padding: 14px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 14px;
-  font-family: inherit;
-  resize: vertical;
-  background: #fafbfc;
-  transition: all 0.2s;
-  line-height: 1.6;
-}
-.ai-section textarea:focus {
-  outline: none;
-  border-color: #7c5cfc;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(124,92,252,0.06);
-}
-.ai-row {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-top: 14px;
-  flex-wrap: wrap;
-}
-.api-key-hint {
-  font-size: 12px;
-  color: #aab5c0;
-  margin-top: 10px;
-}
-.api-key-hint a {
-  color: #7c5cfc;
-  text-decoration: none;
-  font-weight: 500;
-}
-.api-key-hint a:hover { text-decoration: underline; }
+  /* ═══════════ Scroll-reveal ═══════════ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
 
-/* Stats bar */
-.stats-bar {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 22px;
-}
-.stat-item {
-  background: rgba(255,255,255,0.8);
-  backdrop-filter: blur(8px);
-  border-radius: 14px;
-  padding: 18px 22px;
-  text-align: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 4px 12px rgba(0,0,0,0.03);
-  flex: 1;
-  min-width: 100px;
-  border: 1px solid rgba(255,255,255,0.5);
-  transition: transform 0.2s;
-}
-.stat-item:hover { transform: translateY(-2px); }
-.stat-num {
-  font-size: 30px;
-  font-weight: 800;
-  letter-spacing: -1px;
-}
-.stat-label {
-  font-size: 12px;
-  color: #8899aa;
-  margin-top: 4px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-}
-.stat-num.danger { color: #ef4444; }
-.stat-num.warning { color: #f59e0b; }
-.stat-num.normal { color: #10b981; }
+  /* ═══════════ Hero ═══════════ */
+  .hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 0 1.5rem;
+    text-align: center;
+  }
 
-/* Table */
-.table-wrap { overflow-x: auto; }
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-thead th {
-  text-align: left;
-  padding: 12px 16px;
-  font-size: 12px;
-  color: #8899aa;
-  font-weight: 700;
-  border-bottom: 2px solid #eef1f6;
-  letter-spacing: 0.5px;
-}
-tbody td {
-  padding: 14px 16px;
-  font-size: 14px;
-  border-bottom: 1px solid #f4f6fa;
-  vertical-align: middle;
-}
-tbody td:last-child {
-  white-space: nowrap;
-}
-.col-date {
-  white-space: nowrap;
-  min-width: 130px;
-}
-tbody tr {
-  transition: background 0.2s;
-  border-radius: 10px;
-}
-tbody tr:hover { background: #fafbfe; }
+  .hero-name {
+    font-family: var(--serif);
+    font-size: clamp(2.6rem, 7vw, 4.4rem);
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.15;
+    letter-spacing: 0.03em;
+    opacity: 0;
+    transform: translateY(24px);
+    animation: fadeUp 0.9s 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
 
-/* Deadline badges */
-.badge {
-  display: inline-block;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-}
-.badge-doit {
-  background: #fef2f2;
-  color: #dc2626;
-  font-weight: 800;
-  animation: pulse-strong 0.8s ease-in-out infinite;
-  font-size: 13px;
-  padding: 6px 16px;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-}
-.badge-urgent {
-  background: #fff7ed;
-  color: #ea580c;
-  font-weight: 700;
-}
-.badge-warning {
-  background: #fffbeb;
-  color: #b45309;
-  font-weight: 600;
-}
-.badge-normal {
-  background: #f0fdf6;
-  color: #16a34a;
-}
+  .hero-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem 2rem;
+    max-width: 500px;
+    margin: 1rem auto 0;
+    opacity: 0;
+    transform: translateY(24px);
+    animation: fadeUp 0.9s 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
 
-@keyframes pulse-strong {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.55; transform: scale(1.04); }
-}
+  .hero-card p {
+    font-size: clamp(0.88rem, 1.5vw, 0.93rem);
+    color: var(--muted);
+    line-height: 1.8;
+    margin: 0;
+  }
 
-.item-name {
-  font-weight: 600;
-  color: #1d2939;
-}
-.item-address {
-  font-size: 12px;
-  color: #a0aec0;
-  margin-top: 3px;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
+  .hero-card p + p { margin-top: 0.35rem; }
 
-/* Completed section */
-.completed-section { margin-top: 22px; }
-.completed-section h2 { color: #aab5c0; border-bottom-color: #f4f5f8; }
-.completed-row { opacity: 0.5; }
-.completed-row .item-name {
-  text-decoration: line-through;
-  color: #aab5c0;
-  font-weight: 400;
-}
+  .hero-line {
+    width: 40px;
+    height: 1px;
+    background: var(--accent);
+    margin: 1.4rem auto;
+    opacity: 0;
+    transform: translateY(24px);
+    animation: fadeUp 0.9s 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
 
-.empty-state {
-  text-align: center;
-  padding: 48px 20px;
-  color: #c0c8d2;
-  font-size: 14px;
-}
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-/* Toast */
-.toast {
-  position: fixed;
-  top: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
-  color: #fff;
-  padding: 12px 26px;
-  border-radius: 10px;
-  font-size: 14px;
-  z-index: 999;
-  opacity: 0;
-  transition: opacity 0.3s, transform 0.3s;
-  pointer-events: none;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-}
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(2px); }
+  .hero-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1rem;
+    opacity: 0;
+    transform: translateY(24px);
+    animation: fadeUp 0.9s 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
 
-/* API Key modal */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(15,23,42,0.5);
-  backdrop-filter: blur(4px);
-  z-index: 1000;
-  align-items: center;
-  justify-content: center;
-}
-.modal-overlay.show { display: flex; }
-.modal-box {
-  background: #fff;
-  border-radius: 16px;
-  padding: 28px;
-  max-width: 420px;
-  width: 90%;
-  box-shadow: 0 12px 48px rgba(0,0,0,0.2);
-}
-.modal-box h3 { margin-bottom: 14px; font-size: 18px; color: #2d3748; }
-.modal-box input {
-  width: 100%;
-  padding: 11px 14px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 14px;
-  font-family: inherit;
-  margin-bottom: 14px;
-  background: #fafbfc;
-}
-.modal-box input:focus {
-  outline: none;
-  border-color: #7c5cfc;
-  box-shadow: 0 0 0 3px rgba(124,92,252,0.08);
-}
-.modal-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-}
+  /* ── Buttons ── */
+  .btn {
+    padding: 0.6rem 1.6rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text);
+    font-size: 0.88rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none;
+    display: inline-block;
+    letter-spacing: 0.02em;
+  }
 
-@media (max-width: 600px) {
-  .form-row { flex-direction: column; }
-  .form-group { min-width: 100%; }
-  .ai-row { flex-direction: column; align-items: stretch; }
-  header h1 { font-size: 26px; }
-  .card { padding: 20px; }
-}
+  .btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+  }
 
-/* Password gate */
-.password-gate {
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(135deg, #e8edf5 0%, #f0f4fa 30%, #faf5f0 70%, #f5efe8 100%);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.password-gate.hidden { display: none; }
-.password-box {
-  background: #fff;
-  border-radius: 16px;
-  padding: 36px 32px;
-  text-align: center;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  max-width: 360px;
-  width: 90%;
-}
-.password-box h2 {
-  font-size: 20px;
-  margin-bottom: 6px;
-  color: #2d3748;
-}
-.password-box .pw-subtitle {
-  font-size: 13px;
-  color: #8899aa;
-  margin-bottom: 22px;
-}
-.password-box input {
-  width: 100%;
-  padding: 11px 14px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 14px;
-  font-family: inherit;
-  text-align: center;
-  background: #fafbfc;
-  letter-spacing: 4px;
-}
-.password-box input:focus {
-  outline: none;
-  border-color: #7c5cfc;
-  box-shadow: 0 0 0 3px rgba(124,92,252,0.08);
-}
-.password-box .pw-error {
-  font-size: 12px;
-  color: #ef4444;
-  margin-top: 10px;
-  display: none;
-}
-.password-box .pw-error.show { display: block; }
+  .btn-filled {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .btn-filled:hover {
+    background: #B55D3F;
+    border-color: #B55D3F;
+    color: #fff;
+  }
+
+  /* ═══════════ About ═══════════ */
+  .about-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 2.6rem 2.4rem;
+    box-shadow: var(--shadow);
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .about-card p {
+    font-size: 0.95rem;
+    color: var(--muted);
+    line-height: 2;
+    text-align: left;
+    text-wrap: pretty;
+  }
+
+  /* ═══════════ Timeline ═══════════ */
+  .timeline {
+    position: relative;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 8px;
+    bottom: 8px;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .tl-item {
+    position: relative;
+    display: flex;
+    margin-bottom: 1.2rem;
+    cursor: pointer;
+    align-items: flex-start;
+  }
+
+  .tl-item:last-child { margin-bottom: 0; }
+
+  .tl-dot {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--accent);
+    top: 7px;
+    z-index: 1;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.35s ease;
+  }
+
+  .tl-item.expanded .tl-dot {
+    transform: translateX(-50%) scale(1.5);
+    box-shadow: 0 0 0 6px rgba(196, 105, 75, 0.12);
+  }
+
+  .tl-card {
+    width: 44%;
+    padding: 1.1rem 1.3rem 1.6rem;
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    position: relative;
+  }
+
+  .tl-card::after {
+    content: '\2228';
+    position: absolute;
+    right: 12px;
+    bottom: 4px;
+    font-size: 0.7rem;
+    color: var(--accent);
+    transition: transform 0.35s ease;
+  }
+
+  .tl-item.expanded .tl-card::after {
+    content: '\2227';
+  }
+
+  .tl-card:hover {
+    box-shadow: var(--shadow-h);
+    transform: translateY(-2px);
+  }
+
+  /* even items: card on the right */
+  .tl-item:nth-child(even) .tl-card {
+    margin-left: auto;
+  }
+
+  /* odd items: card on the left */
+  .tl-item:nth-child(odd) .tl-card {
+    margin-right: auto;
+  }
+
+  .tl-time {
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.3rem;
+  }
+
+  .tl-title {
+    font-family: var(--serif);
+    font-size: 0.93rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .tl-detail {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                margin-top 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.35s ease;
+    opacity: 0;
+    font-size: 0.84rem;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-top: 0;
+  }
+
+  .tl-item.expanded .tl-detail {
+    max-height: 260px;
+    margin-top: 0.7rem;
+    opacity: 1;
+  }
+
+  /* desktop: hover to expand timeline detail */
+  @media (hover: hover) {
+    .tl-item:hover .tl-detail {
+      max-height: 260px;
+      margin-top: 0.7rem;
+      opacity: 1;
+    }
+
+    .tl-item:hover .tl-card::after {
+      content: '\2227';
+    }
+  }
+
+  /* ═══════════ Skills ═══════════ */
+  .skills-group {
+    margin-bottom: 1.8rem;
+  }
+  .skills-group:last-child { margin-bottom: 0; }
+
+  .skills-group h3 {
+    font-family: var(--serif);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.04em;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 0.35rem 0.95rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    background: var(--bg);
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+  }
+
+  .tag:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-1px);
+    background: #fff;
+  }
+
+  .tag.pinned {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: #fff;
+  }
+
+  /* ── Tag tooltip ── */
+  .tag-tip {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%);
+    background: #fff;
+    color: #4A5568;
+    padding: 0.55rem 0.9rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04);
+    font-size: 0.76rem;
+    line-height: 1.6;
+    white-space: normal;
+    width: 230px;
+    max-width: 78vw;
+    text-align: left;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+  }
+
+  .tag-tip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #fff;
+  }
+
+  /* desktop: hover shows tooltip */
+  @media (hover: hover) {
+    .tag:hover .tag-tip {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  /* mobile / both: click to pin */
+  .tag.pinned .tag-tip {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* flip tooltip below if near bottom */
+  .tag-tip.flip {
+    bottom: auto;
+    top: calc(100% + 8px);
+  }
+
+  .tag-tip.flip::after {
+    top: auto;
+    bottom: 100%;
+    border-top-color: transparent;
+    border-bottom-color: #fff;
+  }
+
+  /* ═══════════ Contact ═══════════ */
+  .contact-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 2.2rem 2rem;
+    box-shadow: var(--shadow);
+    max-width: 420px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 0.65rem;
+    text-decoration: none;
+    transition: color 0.25s ease, transform 0.25s ease;
+  }
+
+  .contact-item:hover {
+    color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .contact-icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .contact-note {
+    color: var(--muted);
+    font-size: 0.84rem;
+    margin-top: 1.2rem;
+  }
+
+  /* ═══════════ Footer ═══════════ */
+  footer {
+    text-align: center;
+    padding: 2rem 1.5rem 3.5rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  footer span {
+    font-family: var(--serif);
+    font-style: italic;
+  }
+
+  /* ═══════════ Mobile ═══════════ */
+  @media (max-width: 600px) {
+    section { padding: 2.5rem 1.2rem; }
+
+    .hero-name { font-size: clamp(2rem, 10vw, 2.8rem); }
+
+    .about-card,
+    .hero-card,
+    .contact-card { padding: 1.5rem 1.2rem; }
+
+    .tl-card { width: 46%; }
+
+    .hero-buttons { gap: 0.6rem; }
+  }
 </style>
 </head>
 <body>
 
-<!-- 密码验证 -->
-<div class="password-gate" id="passwordGate">
-  <div class="password-box">
-    <h2>需要密码</h2>
-    <p class="pw-subtitle">请输入密码以访问此页面</p>
-    <input type="password" id="passwordInput" placeholder="请输入密码" autofocus>
-    <p class="pw-error" id="pwError">密码错误</p>
+<!-- ═══════════ Hero ═══════════ -->
+<section class="hero" id="top">
+  <h1 class="hero-name">李韵都</h1>
+  <div class="hero-card">
+    <p>211应届生 · 内容创作 × 行政实习 × AI工具实践</p>
+    <p>我在小红书写过10万赞的内容，也用AI从零写出了两款上线产品</p>
   </div>
-</div>
-
-<div class="container">
-  <header>
-    <h1>Deadline 提醒</h1>
-    <p class="subtitle">不再遗漏重要事项</p>
-  </header>
-
-  <!-- 统计栏 -->
-  <div class="stats-bar" id="statsBar">
-    <div class="stat-item">
-      <div class="stat-num normal" id="statActive">0</div>
-      <div class="stat-label">进行中</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num warning" id="statSoon">0</div>
-      <div class="stat-label">3天内截止</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num danger" id="statOverdue">0</div>
-      <div class="stat-label">已逾期</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num" id="statDone" style="color:#9ca3af">0</div>
-      <div class="stat-label">已完成</div>
-    </div>
+  <div class="hero-line"></div>
+  <div class="hero-buttons">
+    <a href="#about" class="btn btn-filled">了解我</a>
+    <a href="#timeline" class="btn">我做过什么</a>
+    <a href="#contact" class="btn">联系我</a>
   </div>
+</section>
 
-  <!-- 微信推送设置 -->
-  <div class="card">
-    <h2>微信推送</h2>
-    <div style="font-size:13px;color:#8899aa;line-height:1.8;">
-      每天自动通过 Server酱 发送微信提醒（由 GitHub Actions 定时执行）<br>
-      检测规则：距离 deadline 还有 1天、3天、5天 时自动推送
-    </div>
-    <div id="notifyStatus" style="font-size:12px;color:#10b981;margin-top:8px;"></div>
+<!-- ═══════════ About ═══════════ -->
+<section id="about">
+  <h2 class="sec-title reveal">关于我</h2>
+  <div class="about-card reveal">
+    <p>毕业于广西大学公共事业管理专业（211）。在校期间通过多段实习积累了行政、文书与活动执行的实操经验，同时自主运营小红书账号获赞收藏超10万，参与公益项目的内容传播与活动组织。对内容创作和用户沟通有真实的热情与感知力。零基础自学 AI 编程工具，独立完成两款产品的设计与上线，习惯用新工具解决实际问题。</p>
   </div>
+</section>
 
-  <!-- AI 智能解析 -->
-  <div class="card ai-section">
-    <h2>AI 智能解析</h2>
-    <textarea id="aiText" placeholder="粘贴通知、邮件等内容，例如：&#10;张三，请在5月30日前将述职报告提交至3号楼402会议室，届时将进行年度评审。"></textarea>
-    <div class="ai-row">
-      <button class="btn btn-primary" id="btnParse" onclick="aiParse()">智能解析</button>
-      <button class="btn btn-outline btn-sm" id="btnApiKey" onclick="showApiKeyModal()">设置 API Key</button>
-      <span id="parseStatus" style="font-size:13px;color:#888;"></span>
-    </div>
-    <div class="api-key-hint">
-      使用 DeepSeek API 进行智能解析。API Key 仅保存在浏览器本地。
-      <a href="https://platform.deepseek.com/api_keys" target="_blank">获取 API Key</a>
-    </div>
-  </div>
+<!-- ═══════════ Timeline ═══════════ -->
+<section id="timeline">
+  <h2 class="sec-title reveal">我做过什么</h2>
+  <div class="timeline">
 
-  <!-- 添加事项 -->
-  <div class="card">
-    <h2>添加事项</h2>
-    <div class="form-row">
-      <div class="form-group" style="flex:2">
-        <label>事项名称 *</label>
-        <input type="text" id="inputName" placeholder="例如：提交述职报告">
-      </div>
-      <div class="form-group">
-        <label>Deadline 日期 *</label>
-        <input type="date" id="inputDate">
-      </div>
-      <div class="form-group" style="flex:2">
-        <label>地址（可选）</label>
-        <input type="text" id="inputAddress" placeholder="例如：3号楼402会议室">
-      </div>
-      <div class="form-group" style="flex:0;min-width:auto;flex-direction:row;align-items:flex-end;gap:8px;">
-        <button class="btn btn-primary" id="btnSubmit" onclick="addItem()">添加</button>
-        <button class="btn btn-outline btn-sm" id="btnCancelEdit" onclick="cancelEdit()" style="display:none;">取消编辑</button>
+    <div class="tl-item reveal">
+      <div class="tl-dot"></div>
+      <div class="tl-card">
+        <div class="tl-time">2025.7 — 2025.9</div>
+        <div class="tl-title">南充市机关事务管理局 · 办公室实习生</div>
+        <div class="tl-detail">全程参与招聘面试筹备与现场执行；负责文书及人事档案整理归档；协助多场大型会务活动现场支持与人员协调。</div>
       </div>
     </div>
-  </div>
 
-  <!-- 进行中的事项 -->
-  <div class="card">
-    <h2>进行中</h2>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>事项</th>
-            <th class="col-date">Deadline</th>
-            <th>剩余天数</th>
-            <th>地址</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody id="activeList"></tbody>
-      </table>
+    <div class="tl-item reveal">
+      <div class="tl-dot"></div>
+      <div class="tl-card">
+        <div class="tl-time">2024.9 — 2024.10</div>
+        <div class="tl-title">南宁市西乡塘街道办 · 政务实习生</div>
+        <div class="tl-detail">参与辖区日常行政事务；提供来访人员接待引导与诉求处理；整理居民数据报表并进行初步数据分析。</div>
+      </div>
     </div>
-    <div class="empty-state" id="activeEmpty">暂无待办事项，添加一个吧</div>
-  </div>
 
-  <!-- 已完成 -->
-  <div class="card completed-section">
-    <h2>已完成</h2>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>事项</th>
-            <th class="col-date">Deadline</th>
-            <th>地址</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody id="completedList"></tbody>
-      </table>
+    <div class="tl-item reveal">
+      <div class="tl-dot"></div>
+      <div class="tl-card">
+        <div class="tl-time">2023.7 — 2023.9</div>
+        <div class="tl-title">四川绸都律师事务所 · 律师助理</div>
+        <div class="tl-detail">协助招聘工作，参与应聘人员接待与初步筛选；统筹日常行政事务，负责会议安排与多类文件归档。</div>
+      </div>
     </div>
-    <div class="empty-state" id="completedEmpty" style="display:none">暂无已完成事项</div>
-  </div>
-</div>
 
-<!-- API Key Modal -->
-<div class="modal-overlay" id="apiKeyModal">
-  <div class="modal-box">
-    <h3>设置 DeepSeek API Key</h3>
-    <input type="password" id="apiKeyInput" placeholder="sk-...">
-    <div class="modal-actions">
-      <button class="btn btn-outline btn-sm" onclick="closeApiKeyModal()">取消</button>
-      <button class="btn btn-primary btn-sm" onclick="saveApiKey()">保存</button>
-      <button class="btn btn-danger btn-sm" onclick="clearApiKey()">清除</button>
+    <div class="tl-item reveal">
+      <div class="tl-dot"></div>
+      <div class="tl-card">
+        <div class="tl-time">2023.3 — 至今</div>
+        <div class="tl-title">南宁动保日公益项目 · 活动运营志愿者</div>
+        <div class="tl-detail">担任线下活动现场组长，统筹人员调度；社群预热吸引500+关注，公益直播单日销售额超4000元；剪辑回顾视频播放超1200次。</div>
+      </div>
     </div>
-  </div>
-</div>
 
-<div class="toast" id="toast"></div>
+    <div class="tl-item reveal">
+      <div class="tl-dot"></div>
+      <div class="tl-card">
+        <div class="tl-time">2021 — 至今</div>
+        <div class="tl-title">个人小红书账号运营</div>
+        <div class="tl-detail">独立运营生活方式类账号，获赞与收藏累计超10万，单篇最高点赞2.5万。理解平台内容逻辑与用户偏好，具备内容策划与爆款创作经验。</div>
+      </div>
+    </div>
+
+    <div class="tl-item reveal">
+      <div class="tl-dot"></div>
+      <div class="tl-card">
+        <div class="tl-time">已上线</div>
+        <div class="tl-title">DDL 提醒网站 · 独立开发</div>
+        <div class="tl-detail">零基础自学 Cursor + Claude Code，独立完成需求分析、产品设计、代码编写与部署上线全流程。</div>
+      </div>
+    </div>
+
+    <div class="tl-item reveal">
+      <div class="tl-dot"></div>
+      <div class="tl-card">
+        <div class="tl-time">已上线</div>
+        <div class="tl-title">「放哪去啦」微信小程序 · 独立开发</div>
+        <div class="tl-detail">独立设计并开发微信小程序，解决真实生活痛点，自主调试上线。</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════ Skills ═══════════ -->
+<section id="skills">
+  <h2 class="sec-title reveal">我会什么</h2>
+    <div class="skills-group reveal">
+      <h3>专业技能</h3>
+      <div class="tags">
+        <span class="tag" data-tip="小红书独立运营，获赞收藏超10万，单篇最高2.5万赞">内容创作</span>
+        <span class="tag" data-tip="熟悉小红书平台内容逻辑，有社群预热与私域运营经验">新媒体运营</span>
+        <span class="tag" data-tip="多次担任线下大型活动组长，统筹人员调度与全流程执行">活动策划与执行</span>
+        <span class="tag" data-tip="参与面试筹备与现场执行，协助应聘人员接待与初步筛选">招聘协助</span>
+        <span class="tag" data-tip="专业必修行政管理学，多段实习中撰写公文、整理归档文件">行政文书</span>
+        <span class="tag" data-tip="实习中整理居民数据报表，具备Excel数据处理能力">数据整理与分析</span>
+        <span class="tag" data-tip="独立使用相机拍摄，可剪辑活动回顾等短视频内容">摄影 & 短视频剪辑</span>
+        <span class="tag" data-tip="专业必修课程，实习中实际撰写公文，掌握多类公文格式">公文写作</span>
+        <span class="tag" data-tip="多段实习均有来访接待与用户服务经验，善于沟通协调">用户沟通</span>
+      </div>
+    </div>
+    <div class="skills-group reveal">
+      <h3>工具能力</h3>
+      <div class="tags">
+        <span class="tag" data-tip="用于AI辅助编程，独立完成两款产品开发">Cursor</span>
+        <span class="tag" data-tip="搭配Cursor完成从需求分析到上线的完整开发流程">Claude Code</span>
+        <span class="tag" data-tip="零基础自学，已独立开发并上线网站和微信小程序">AI 辅助编程</span>
+        <span class="tag" data-tip="熟练完成文档编辑、排版与日常办公输出，持有计算机二级证书">WPS</span>
+        <span class="tag" data-tip="可完成数据整理、报表制作与基础数据分析，持有计算机二级证书">Excel</span>
+        <span class="tag" data-tip="可独立完成演示文稿设计与制作，持有计算机二级证书">PPT</span>
+        <span class="tag" data-tip="参与公益项目社群维护与活动信息传播，有社群运营实操经验">社群运营</span>
+      </div>
+    </div>
+</section>
+
+<!-- ═══════════ Contact ═══════════ -->
+<section id="contact">
+  <h2 class="sec-title reveal">联系我</h2>
+  <div class="contact-card reveal">
+    <a class="contact-item" href="tel:17781112101">
+      <span class="contact-icon">&#x1F4F1;</span> 17781112101
+    </a>
+    <a class="contact-item" href="mailto:yeddali1116@foxmail.com">
+      <span class="contact-icon">&#x2709;</span> yeddali1116@foxmail.com
+    </a>
+    <p class="contact-note">欢迎通过邮件或电话联系我</p>
+  </div>
+</section>
+
+<footer class="reveal">
+  &copy; 2026 <span>李韵都</span>
+</footer>
 
 <script>
-const PASSWORD = '110627';
-const AUTH_KEY = 'deadline_auth';
-
-// --- Password Gate ---
-(function checkPassword() {
-  if (sessionStorage.getItem(AUTH_KEY) === '1') {
-    document.getElementById('passwordGate').classList.add('hidden');
-    return;
-  }
-  const input = document.getElementById('passwordInput');
-  const error = document.getElementById('pwError');
-  input.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      if (input.value === PASSWORD) {
-        sessionStorage.setItem(AUTH_KEY, '1');
-        document.getElementById('passwordGate').classList.add('hidden');
-      } else {
-        error.classList.add('show');
-        input.value = '';
-      }
-    }
-  });
-})();
-
-const API_BASE = '/api/items';
-const API_KEY_STORAGE = 'deepseek_api_key';
-
-let items = [];
-let editingId = null;
-
-// --- Data ---
-async function loadItems() {
-  try {
-    const resp = await fetch(API_BASE);
-    if (!resp.ok) throw new Error('API error: ' + resp.status);
-    items = await resp.json();
-  } catch (e) {
-    console.error('加载失败:', e);
-    showToast('加载数据失败');
-    items = [];
-  }
-}
-
-// --- Render ---
-function getDaysUntil(deadline) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const dl = new Date(deadline + 'T00:00:00');
-  return Math.ceil((dl - today) / (1000 * 60 * 60 * 24));
-}
-
-function getDeadlineBadge(days) {
-  if (days <= 1) return '<span class="badge badge-doit">马上去做！！</span>';
-  if (days <= 3) return '<span class="badge badge-urgent">紧急</span>';
-  if (days <= 5) return '<span class="badge badge-warning">注意</span>';
-  return '<span class="badge badge-normal">还有 ' + days + ' 天</span>';
-}
-
-function renderRow(item) {
-  const days = getDaysUntil(item.deadline);
-  const badge = item.completed ? '' : getDeadlineBadge(days);
-  const address = item.address ? '<div class="item-address">' + escapeHtml(item.address) + '</div>' : '';
-
-  let actions = '';
-  if (!item.completed) {
-    actions = '<button class="checkbox-btn" onclick="completeItem(\'' + item.id + '\')" title="标记完成"></button> ';
-    actions += '<button class="btn btn-outline btn-sm" onclick="editItem(\'' + item.id + '\')">编辑</button> ';
-  } else {
-    actions = '<button class="checkbox-btn done" onclick="uncompleteItem(\'' + item.id + '\')" title="取消完成">✓</button> ';
-  }
-  actions += '<button class="btn btn-danger" onclick="deleteItem(\'' + item.id + '\')">删除</button>';
-
-  const rowClass = item.completed ? 'completed-row' : '';
-
-  if (item.completed) {
-    return '<tr class="' + rowClass + '">' +
-      '<td><span class="item-name">' + escapeHtml(item.name) + '</span>' + address + '</td>' +
-      '<td class="col-date">' + formatDate(item.deadline) + '</td>' +
-      '<td>' + badge + '</td>' +
-      '<td>' + (item.address ? escapeHtml(item.address) : '-') + '</td>' +
-      '<td>' + actions + '</td>' +
-      '</tr>';
-  }
-
-  return '<tr class="' + rowClass + '">' +
-    '<td><span class="item-name">' + escapeHtml(item.name) + '</span>' + address + '</td>' +
-    '<td class="col-date">' + formatDate(item.deadline) + '</td>' +
-    '<td>' + badge + '</td>' +
-    '<td>' + (item.address ? escapeHtml(item.address) : '-') + '</td>' +
-    '<td>' + actions + '</td>' +
-    '</tr>';
-}
-
-function renderAll() {
-  // 过滤空名称的无效行
-  const validItems = items.filter(i => i.name && i.name.trim());
-  const activeItems = validItems.filter(i => !i.completed);
-  const completedItems = validItems.filter(i => i.completed);
-
-  // Sort active by deadline ascending
-  activeItems.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
-  completedItems.sort((a, b) => new Date(b.deadline) - new Date(a.deadline));
-
-  document.getElementById('activeList').innerHTML = activeItems.map(i => renderRow(i)).join('');
-  document.getElementById('completedList').innerHTML = completedItems.map(i => renderRow(i)).join('');
-
-  document.getElementById('activeEmpty').style.display = activeItems.length === 0 ? '' : 'none';
-  document.getElementById('completedEmpty').style.display = completedItems.length === 0 ? '' : 'none';
-
-  // Stats
-  const soon = activeItems.filter(i => {
-    const d = getDaysUntil(i.deadline);
-    return d >= 0 && d <= 3;
-  }).length;
-  const overdueCount = activeItems.filter(i => getDaysUntil(i.deadline) < 0).length;
-
-  document.getElementById('statActive').textContent = activeItems.length;
-  document.getElementById('statSoon').textContent = soon;
-  document.getElementById('statOverdue').textContent = overdueCount;
-  document.getElementById('statDone').textContent = completedItems.length;
-}
-
-// --- Actions ---
-async function addItem() {
-  const name = document.getElementById('inputName').value.trim();
-  const date = document.getElementById('inputDate').value;
-  const address = document.getElementById('inputAddress').value.trim();
-
-  if (!name) { showToast('请输入事项名称'); return; }
-  if (!date) { showToast('请选择 deadline 日期'); return; }
-
-  if (editingId) {
-    try {
-      const resp = await fetch(API_BASE + '?id=' + encodeURIComponent(editingId), {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, deadline: date, address })
+  /* ═══════════ Scroll reveal ═══════════ */
+  (function () {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
       });
-      if (!resp.ok) throw new Error('更新失败');
-      await loadItems();
-      renderAll();
-      showToast('事项已更新');
-    } catch (e) {
-      showToast('更新失败: ' + e.message);
-      return;
-    }
-  } else {
-    try {
-      const resp = await fetch(API_BASE, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, deadline: date, address })
-      });
-      if (!resp.ok) throw new Error('添加失败');
-      await loadItems();
-      renderAll();
-      showToast('事项已添加');
-    } catch (e) {
-      showToast('添加失败: ' + e.message);
-      return;
-    }
-  }
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
 
-  clearForm();
-}
+    var reveals = document.querySelectorAll('.reveal');
+    for (var i = 0; i < reveals.length; i++) {
+      observer.observe(reveals[i]);
+    }
+  })();
 
-async function completeItem(id) {
-  try {
-    const resp = await fetch(API_BASE + '?id=' + encodeURIComponent(id), {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ completed: true })
+  /* ═══════════ Timeline click (pin) ═══════════ */
+  (function () {
+    var timeline = document.querySelector('.timeline');
+    if (!timeline) return;
+
+    timeline.addEventListener('click', function (e) {
+      var item = e.target.closest('.tl-item');
+      if (!item) return;
+      item.classList.toggle('expanded');
     });
-    if (!resp.ok) throw new Error('操作失败');
-    const item = items.find(i => i.id === id);
-    if (item) item.completed = true;
-    renderAll();
-    showToast('已标记为完成');
-  } catch (e) {
-    showToast('操作失败: ' + e.message);
-  }
-}
+  })();
 
-async function uncompleteItem(id) {
-  try {
-    const resp = await fetch(API_BASE + '?id=' + encodeURIComponent(id), {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ completed: false })
-    });
-    if (!resp.ok) throw new Error('操作失败');
-    const item = items.find(i => i.id === id);
-    if (item) item.completed = false;
-    renderAll();
-    showToast('已恢复');
-  } catch (e) {
-    showToast('操作失败: ' + e.message);
-  }
-}
+  /* ═══════════ Tag tooltips ═══════════ */
+  (function () {
+    var tags = document.querySelectorAll('.tag[data-tip]');
+    var pinnedTag = null;
 
-async function deleteItem(id) {
-  if (!confirm('确定要删除这个事项吗？')) return;
-  try {
-    const resp = await fetch(API_BASE + '?id=' + encodeURIComponent(id), { method: 'DELETE' });
-    if (!resp.ok) throw new Error('删除失败');
-    items = items.filter(i => i.id !== id);
-    renderAll();
-    showToast('事项已删除');
-  } catch (e) {
-    showToast('删除失败: ' + e.message);
-  }
-}
+    // Create tooltip elements on load
+    for (var i = 0; i < tags.length; i++) {
+      (function (tag) {
+        var tip = document.createElement('div');
+        tip.className = 'tag-tip';
+        tip.textContent = tag.getAttribute('data-tip');
+        tag.appendChild(tip);
 
-function editItem(id) {
-  const item = items.find(i => i.id === id);
-  if (!item) return;
-  editingId = id;
-  document.getElementById('inputName').value = item.name;
-  document.getElementById('inputDate').value = item.deadline;
-  document.getElementById('inputAddress').value = item.address || '';
-  document.getElementById('btnSubmit').textContent = '确认修改';
-  document.getElementById('btnCancelEdit').style.display = '';
-  document.getElementById('inputName').focus();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+        // Flip check on hover (desktop) or click (mobile)
+        tag.addEventListener('mouseenter', function () {
+          var rect = tag.getBoundingClientRect();
+          if (window.innerHeight - rect.bottom < 160) {
+            tip.classList.add('flip');
+          } else {
+            tip.classList.remove('flip');
+          }
+        });
 
-function cancelEdit() {
-  editingId = null;
-  clearForm();
-}
-
-function clearForm() {
-  document.getElementById('inputName').value = '';
-  document.getElementById('inputDate').value = '';
-  document.getElementById('inputAddress').value = '';
-  editingId = null;
-  document.getElementById('btnSubmit').textContent = '添加';
-  document.getElementById('btnCancelEdit').style.display = 'none';
-}
-
-// --- AI Parse ---
-async function aiParse() {
-  const text = document.getElementById('aiText').value.trim();
-  if (!text) { showToast('请先粘贴需要解析的文字'); return; }
-
-  const apiKey = localStorage.getItem(API_KEY_STORAGE);
-  if (!apiKey) {
-    showApiKeyModal();
-    showToast('请先设置 API Key');
-    return;
-  }
-
-  const statusEl = document.getElementById('parseStatus');
-  const btn = document.getElementById('btnParse');
-  statusEl.textContent = '解析中...';
-  btn.disabled = true;
-
-  try {
-    const resp = await fetch('https://api.deepseek.com/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + apiKey
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        max_tokens: 512,
-        messages: [{
-          role: 'user',
-          content: '从以下文本中提取任务信息。返回纯 JSON 数组，每个元素包含 name（任务名称）、deadline（日期，格式 YYYY-MM-DD）、address（地址，没有则为空字符串）。如果文本中没有明确的任务或 deadline，返回空数组 []。\n\n只返回 JSON，不要其他内容。\n\n文本：\n' + text
-        }]
-      })
-    });
-
-    if (!resp.ok) {
-      const err = await resp.text();
-      throw new Error('API 请求失败: ' + resp.status + ' ' + err);
+        // Click to pin/unpin (works on both desktop and mobile)
+        tag.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (pinnedTag === tag) {
+            tag.classList.remove('pinned');
+            pinnedTag = null;
+          } else {
+            if (pinnedTag) pinnedTag.classList.remove('pinned');
+            tag.classList.add('pinned');
+            pinnedTag = tag;
+            // re-check flip on click
+            var rect = tag.getBoundingClientRect();
+            if (window.innerHeight - rect.bottom < 160) {
+              tip.classList.add('flip');
+            } else {
+              tip.classList.remove('flip');
+            }
+          }
+        });
+      })(tags[i]);
     }
 
-    const data = await resp.json();
-    const content = data.choices[0].message.content;
-    // Extract JSON from response
-    const jsonMatch = content.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) {
-      statusEl.textContent = '未识别到任务信息';
-      btn.disabled = false;
-      return;
-    }
-
-    const parsed = JSON.parse(jsonMatch[0]);
-    if (parsed.length === 0) {
-      statusEl.textContent = '未识别到任务信息';
-      btn.disabled = false;
-      return;
-    }
-
-    // 首个填入表单，其余直接通过 API 添加
-    for (let i = 0; i < parsed.length; i++) {
-      const task = parsed[i];
-      if (i === 0) {
-        document.getElementById('inputName').value = task.name || '';
-        document.getElementById('inputDate').value = task.deadline || '';
-        document.getElementById('inputAddress').value = task.address || '';
-      } else {
-        try {
-          await fetch(API_BASE, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              name: task.name || '未命名任务',
-              deadline: task.deadline || new Date().toISOString().slice(0, 10),
-              address: task.address || ''
-            })
-          });
-        } catch (e) { console.error('添加失败:', e); }
+    // Click outside to unpin
+    document.addEventListener('click', function () {
+      if (pinnedTag) {
+        pinnedTag.classList.remove('pinned');
+        pinnedTag = null;
       }
-    }
-
-    await loadItems();
-    renderAll();
-    statusEl.textContent = '成功解析 ' + parsed.length + ' 个任务';
-    btn.disabled = false;
-  } catch (e) {
-    statusEl.textContent = '解析失败: ' + e.message;
-    btn.disabled = false;
-    console.error(e);
-  }
-}
-
-// --- API Key ---
-function showApiKeyModal() {
-  document.getElementById('apiKeyModal').classList.add('show');
-  document.getElementById('apiKeyInput').value = localStorage.getItem(API_KEY_STORAGE) || '';
-}
-function closeApiKeyModal() {
-  document.getElementById('apiKeyModal').classList.remove('show');
-}
-function saveApiKey() {
-  const key = document.getElementById('apiKeyInput').value.trim();
-  if (key) {
-    localStorage.setItem(API_KEY_STORAGE, key);
-    showToast('API Key 已保存');
-  }
-  closeApiKeyModal();
-}
-function clearApiKey() {
-  localStorage.removeItem(API_KEY_STORAGE);
-  document.getElementById('apiKeyInput').value = '';
-  showToast('API Key 已清除');
-  closeApiKeyModal();
-}
-
-// --- Helpers ---
-function formatDate(dateStr) {
-  if (!dateStr) return '-';
-  const parts = dateStr.split('-');
-  return parts[0] + '年' + parseInt(parts[1]) + '月' + parseInt(parts[2]) + '日';
-}
-
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-function showToast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(el._timeout);
-  el._timeout = setTimeout(() => el.classList.remove('show'), 2000);
-}
-
-// --- Init ---
-(async function init() {
-  await loadItems();
-  renderAll();
-  document.getElementById('notifyStatus').textContent = '自动推送已启用（每天 9:00 检测）';
-})();
+    });
+  })();
 </script>
 
 </body>

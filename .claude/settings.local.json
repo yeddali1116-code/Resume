@@ -14,7 +14,18 @@
       "PowerShell(git push *)",
       "PowerShell(gh auth *)",
       "PowerShell(curl *)",
-      "PowerShell(Invoke-RestMethod -Uri \"https://deadline-reminder.vercel.app/api/items\" -Method Get | ConvertTo-Json -Depth 5)"
+      "PowerShell(Invoke-RestMethod -Uri \"https://deadline-reminder.vercel.app/api/items\" -Method Get | ConvertTo-Json -Depth 5)",
+      "Bash(vercel env *)",
+      "Bash(git push *)",
+      "PowerShell(gh *)",
+      "Bash(claude *)",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://127.0.0.1:15721\" -TimeoutSec 3 -ErrorAction Stop; Write-Host \"Proxy status: $\\($r.StatusCode\\)\" } catch { Write-Host \"PROXY_DOWN: $_\" })",
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell(Get-Process *)",
+      "Bash(vercel *)",
+      "PowerShell(git *)",
+      "Bash(start *)",
+      "Bash(git remote *)"
     ]
   }
 }
