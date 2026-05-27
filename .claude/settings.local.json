@@ -25,7 +25,9 @@
       "Bash(vercel *)",
       "PowerShell(git *)",
       "Bash(start *)",
-      "Bash(git remote *)"
+      "Bash(git remote *)",
+      "PowerShell(Remove-Item *)",
+      "PowerShell(Test-Path *)"
     ]
   }
 }
