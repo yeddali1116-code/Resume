@@ -31,6 +31,19 @@
     line-height: 1.8;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
+    isolation: isolate;
+  }
+
+  /* ── Paper grain texture ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
   }
 
   /* ── Section titles ── */
@@ -42,6 +55,17 @@
     text-align: center;
     margin-bottom: 1.8rem;
     letter-spacing: 0.04em;
+  }
+
+  .sec-title::before {
+    content: attr(data-num);
+    display: block;
+    font-family: var(--serif);
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.4rem;
+    font-weight: 400;
   }
 
   section {
@@ -171,18 +195,31 @@
   .about-card {
     background: var(--card);
     border-radius: var(--radius);
-    padding: 2.6rem 2.4rem;
+    padding: 2.4rem;
     box-shadow: var(--shadow);
     max-width: 640px;
     margin: 0 auto;
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+  }
+
+  .about-photo {
+    width: 130px;
+    height: 170px;
+    object-fit: cover;
+    border-radius: 3px;
+    flex-shrink: 0;
+    filter: saturate(0.92);
   }
 
   .about-card p {
-    font-size: 0.95rem;
+    font-size: 0.93rem;
     color: var(--muted);
     line-height: 2;
     text-align: left;
     text-wrap: pretty;
+    margin: 0;
   }
 
   /* ═══════════ Timeline ═══════════ */
@@ -301,7 +338,7 @@
   }
 
   .tl-item.expanded .tl-detail {
-    max-height: 260px;
+    max-height: 700px;
     margin-top: 0.7rem;
     opacity: 1;
   }
@@ -309,7 +346,7 @@
   /* desktop: hover to expand timeline detail */
   @media (hover: hover) {
     .tl-item:hover .tl-detail {
-      max-height: 260px;
+      max-height: 700px;
       margin-top: 0.7rem;
       opacity: 1;
     }
@@ -317,6 +354,55 @@
     .tl-item:hover .tl-card::after {
       content: '\2227';
     }
+  }
+
+  /* ── Timeline image gallery ── */
+  .tl-gallery {
+    display: flex;
+    gap: 6px;
+    margin-top: 0.65rem;
+    flex-wrap: wrap;
+  }
+
+  .tl-thumb {
+    height: 72px;
+    border-radius: 4px;
+    cursor: pointer;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .tl-thumb:hover {
+    opacity: 0.85;
+    transform: scale(1.03);
+  }
+
+  .tl-gallery.col-1 .tl-thumb { width: 100%; height: auto; max-height: 160px; }
+  .tl-gallery.col-2 .tl-thumb { width: calc(50% - 3px); }
+  .tl-gallery.col-3 .tl-thumb { width: calc(33.333% - 4px); }
+
+  /* ── Lightbox ── */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .lightbox.open { display: flex; }
+
+  .lightbox img {
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 6px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+    cursor: default;
   }
 
   /* ═══════════ Skills ═══════════ */
@@ -488,6 +574,9 @@
     .hero-card,
     .contact-card { padding: 1.5rem 1.2rem; }
 
+    .about-card { flex-direction: column; gap: 1.2rem; }
+    .about-photo { width: 100%; height: auto; max-height: 240px; }
+
     .tl-card { width: 46%; }
 
     .hero-buttons { gap: 0.6rem; }
@@ -513,15 +602,16 @@
 
 <!-- ═══════════ About ═══════════ -->
 <section id="about">
-  <h2 class="sec-title reveal">关于我</h2>
+  <h2 class="sec-title reveal" data-num="01">关于我</h2>
   <div class="about-card reveal">
+    <img class="about-photo" src="images/avatar.jpg" alt="李韵都" loading="lazy">
     <p>毕业于广西大学公共事业管理专业（211）。在校期间通过多段实习积累了行政、文书与活动执行的实操经验，同时自主运营小红书账号获赞收藏超10万，参与公益项目的内容传播与活动组织。对内容创作和用户沟通有真实的热情与感知力。零基础自学 AI 编程工具，独立完成两款产品的设计与上线，习惯用新工具解决实际问题。</p>
   </div>
 </section>
 
 <!-- ═══════════ Timeline ═══════════ -->
 <section id="timeline">
-  <h2 class="sec-title reveal">我做过什么</h2>
+  <h2 class="sec-title reveal" data-num="02">我做过什么</h2>
   <div class="timeline">
 
     <div class="tl-item reveal">
@@ -556,7 +646,13 @@
       <div class="tl-card">
         <div class="tl-time">2023.3 — 至今</div>
         <div class="tl-title">南宁动保日公益项目 · 活动运营志愿者</div>
-        <div class="tl-detail">担任线下活动现场组长，统筹人员调度；社群预热吸引500+关注，公益直播单日销售额超4000元；剪辑回顾视频播放超1200次。</div>
+        <div class="tl-detail">担任线下活动现场组长，统筹人员调度；社群预热吸引500+关注，公益直播单日销售额超4000元；剪辑回顾视频获得广泛传播。
+          <div class="tl-gallery col-3">
+            <img class="tl-thumb" src="images/animal-event.jpg" alt="活动现场" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)">
+            <img class="tl-thumb" src="images/animal-livestream.png" alt="直播间" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)">
+            <img class="tl-thumb" src="images/animal-photography.jpg" alt="摄影作品" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)">
+          </div>
+        </div>
       </div>
     </div>
 
@@ -565,7 +661,12 @@
       <div class="tl-card">
         <div class="tl-time">2021 — 至今</div>
         <div class="tl-title">个人小红书账号运营</div>
-        <div class="tl-detail">独立运营生活方式类账号，获赞与收藏累计超10万，单篇最高点赞2.5万。理解平台内容逻辑与用户偏好，具备内容策划与爆款创作经验。</div>
+        <div class="tl-detail">独立运营生活方式类账号，获赞与收藏累计超10万，单篇最高点赞2.5万。理解平台内容逻辑与用户偏好，具备内容策划与爆款创作经验。
+          <div class="tl-gallery col-2">
+            <img class="tl-thumb" src="images/xiaohongshu-data.jpg" alt="数据展示" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)">
+            <img class="tl-thumb" src="images/xiaohongshu-article.jpg" alt="文章展示" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)">
+          </div>
+        </div>
       </div>
     </div>
 
@@ -574,7 +675,11 @@
       <div class="tl-card">
         <div class="tl-time">已上线</div>
         <div class="tl-title">DDL 提醒网站 · 独立开发</div>
-        <div class="tl-detail">零基础自学 Cursor + Claude Code，独立完成需求分析、产品设计、代码编写与部署上线全流程。</div>
+        <div class="tl-detail">零基础自学 Cursor + Claude Code，独立完成需求分析、产品设计、代码编写与部署上线全流程。
+          <div class="tl-gallery col-1">
+            <img class="tl-thumb" src="images/ddl-website.jpg" alt="DDL网站" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)">
+          </div>
+        </div>
       </div>
     </div>
 
@@ -583,7 +688,11 @@
       <div class="tl-card">
         <div class="tl-time">已上线</div>
         <div class="tl-title">「放哪去啦」微信小程序 · 独立开发</div>
-        <div class="tl-detail">独立设计并开发微信小程序，解决真实生活痛点，自主调试上线。</div>
+        <div class="tl-detail">独立设计并开发微信小程序，解决真实生活痛点，自主调试上线。
+          <div class="tl-gallery col-1">
+            <img class="tl-thumb" src="images/miniapp.png" alt="小程序" loading="lazy" onclick="event.stopPropagation();openLightbox(this.src)">
+          </div>
+        </div>
       </div>
     </div>
 
@@ -592,7 +701,7 @@
 
 <!-- ═══════════ Skills ═══════════ -->
 <section id="skills">
-  <h2 class="sec-title reveal">我会什么</h2>
+  <h2 class="sec-title reveal" data-num="03">我会什么</h2>
     <div class="skills-group reveal">
       <h3>专业技能</h3>
       <div class="tags">
@@ -623,7 +732,7 @@
 
 <!-- ═══════════ Contact ═══════════ -->
 <section id="contact">
-  <h2 class="sec-title reveal">联系我</h2>
+  <h2 class="sec-title reveal" data-num="04">联系我</h2>
   <div class="contact-card reveal">
     <a class="contact-item" href="tel:17781112101">
       <span class="contact-icon">&#x1F4F1;</span> 17781112101
@@ -721,7 +830,25 @@
       }
     });
   })();
+
+  /* ═══════════ Lightbox ═══════════ */
+  function openLightbox(src) {
+    var lb = document.getElementById('lightbox');
+    var img = lb.querySelector('img');
+    img.src = src;
+    lb.classList.add('open');
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var lb = document.getElementById('lightbox');
+    if (lb) {
+      lb.addEventListener('click', function () { lb.classList.remove('open'); });
+      lb.querySelector('img').addEventListener('click', function (e) { e.stopPropagation(); });
+    }
+  });
 </script>
+
+<div class="lightbox" id="lightbox"><img src="" alt="预览"></div>
 
 </body>
 </html>
